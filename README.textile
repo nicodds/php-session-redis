@@ -8,7 +8,7 @@ p. So why to implement this backend? In redis-session-php, "ivanstojic":https://
 
 h2. Usage
 
-p. Install _Rediska_ and set the correct include in _redis_session.php_ then you just have to require(\_once) this file at the very beginning of your pages, then call "session\_start()" when you need.
+p. Install _Rediska_ and set the correct include in @redis_session.php@ then you just have to @require(_once)@ this file at the very beginning of your pages, then call @session_start()@ when you need.
 
 <pre>
 <?php
