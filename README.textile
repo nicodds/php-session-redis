@@ -1,0 +1,28 @@
+h1. php-session-redis
+
+p. This small script implements a quick and dirty "Redis":http://redis.io backend for your php session. 
+
+p. Essentially, it does nothing more than https://github.com/ivanstojic/redis-session-php, just something less, because for the sake of easiness we just save the base64 encoded session string.
+
+p. So why to implement this backend? In redis-session-php, "ivanstojic":https://github.com/ivanstojic used "Predis":https://github.com/nrk/predis as client library for handling the connection to Redis and that impose to have php version 5.3 or higher. "Rediska":http://rediska.geometria-lab.net seems to have more relaxed requirements for php version and so that's the story!
+
+h2. Usage
+
+p. Install _Rediska_ and set the correct include in _redis_session.php_ then you just have to require(_once) this file at the very beginning of your pages, then call "session_start()" when you need.
+
+<code lang="php">
+<?php
+require_once('redis_session.php');
+
+// ...
+
+session_start();
+
+$_SESSION['test'] = 1;
+
+...
+</code>
+
+h2. License
+
+Released under the terms of the "GNU GENERAL PUBLIC LICENSE version 3":http://www.gnu.org/licenses/gpl.html.
