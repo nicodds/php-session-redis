@@ -1,10 +1,14 @@
 <?php
+// We use Rediska to wrap the connection to Redis. Change this in
+// order to fit your installation
 require('redis/Rediska.php');
 
 define('REDIS_SERVER', 'localhost');
 define('REDIS_PORT', 6379);
 
 
+// This class implements the methods needed by
+// session_set_save_handler()
 class Session
 {
     private $_redis = null;
@@ -13,53 +17,57 @@ class Session
 						      'port' => REDIS_PORT,
 						      'persistent' => true)));
 
-
+    // open
     public function open() {
-      $this->_redis = new Rediska($this->options);
-
-      if ($this->_redis) {
+      // create the connection to Redis
+      if ($this->_redis = new Rediska($this->options)) {
 	return (bool)true;
       }
 
       return (bool)false;
     }
 
+    // read
     public function read($id) {
-      $str = base64_decode($this->_redis->get($id));
-
-      return (string)$str;
+      // return the (decoded) content of the given key
+      return (string)base64_decode($this->_redis->get($id));
     }
 
+    // write
     public function write($id, $data) {
+      // get the default session max lifetime 
       $ttl = ini_get("session.gc_maxlifetime");
-
-
-      $wr = new Rediska_Key($id);
-      $wr->SetAndExpire(base64_encode($data), $ttl);
-
-      return (bool)true;
+      
+      // use Redis' setex command to set the key value and its expire
+      // time
+      $cmd = new Rediska_Key($id);
+      
+      // the session string is base64 encoded before being stored
+      return (bool) $cmd->SetAndExpire(base64_encode($data), $ttl);
     }
 
+    // delete
     public function destroy($id) {
-      $this->_redis->delete($id);
-
-      return (bool)true;
+      // delete the key from Redis
+      return (bool) $this->_redis->delete($id);
     }
 
-    public function close() { }
 
+    // these methods are unuseful in this implementation
+    public function close() {}
     public function gc($max) {}
 
 }
 
+
 ini_set('session.save_handler', 'user');
 
 $session = new Session();
+
 session_set_save_handler(array($session, 'open'),
                          array($session, 'close'),
                          array($session, 'read'),
                          array($session, 'write'),
                          array($session, 'destroy'),
                          array($session, 'gc'));
-
 ?>
